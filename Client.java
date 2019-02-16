@@ -8,12 +8,17 @@ public class Client extends UnicastRemoteObject implements Client_itf{
 
     private String name = null;
     private Chat_itf chatInterface;
+    private boolean registered = false;
 
     public Client(String name, Chat_itf cItf) throws RemoteException{
-        System.out.println("in constructor ");
+        //System.out.println("in constructor ");
         this.name = name;
         this.chatInterface = cItf;
-        cItf.register(this);
+        registered = cItf.register(this);
+    }
+
+    public boolean isRegistered(){
+        return registered;
     }
 
     public void sendMsg(String sender, String msg) throws RemoteException{
@@ -25,7 +30,7 @@ public class Client extends UnicastRemoteObject implements Client_itf{
     }
 
     public String getName() throws RemoteException{
-        System.out.println("in getName ");
+        //System.out.println("in getName ");
         return this.name;
     }
 

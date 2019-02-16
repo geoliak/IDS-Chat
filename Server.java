@@ -6,10 +6,13 @@ import java.util.*;
 public class Server extends UnicastRemoteObject implements Chat_itf{
 
     private ArrayList<Client_itf> registeredClients = null;
+    private ArrayList<ChatRoom_itf> chatRooms = null;
+    private ArrayList<String> messageList = null;
 
-    public Server() throws  RemoteException{
-        super();
-        registeredClients = new ArrayList<Client_itf>();
+    public Server() throws RemoteException{
+        registeredClients = new ArrayList<>();
+        chatRooms = new ArrayList<>();
+        this.messageList = new ArrayList<>();
     }
 
     public Client_itf getClient(String name) throws RemoteException {
@@ -29,9 +32,20 @@ public class Server extends UnicastRemoteObject implements Chat_itf{
 
     }
 
-    public void broadcastMsg(String clientname , String message) throws RemoteException {
-        for(int i=0; i<registeredClients.size(); i++) {
-            registeredClients.get(i).sendMsg(clientname , message);
+    public void getHistory(Client_itf client) throws RemoteException{
+        for(String msg: this.messageList){
+            client.sendMsg(null,msg);
+        }
+    }
+
+    public void broadcastMsg(String clientName , String message) throws RemoteException {
+        for(Client_itf c: registeredClients) {
+            c.sendMsg(clientName , message);
+        }
+        if (clientName != null) {
+            this.messageList.add("[" + clientName + "] wrote: " + message);
+        } else {
+            this.messageList.add(message);
         }
     }
 
@@ -42,6 +56,7 @@ public class Server extends UnicastRemoteObject implements Chat_itf{
             System.out.println("Successfully registered client: " + client.getName());
 
             sendMsg(client,null,"Successfully registered!");
+            broadcastMsg(null,client.getName()+" is online");
             isRegistered = true;
         }else{
             System.out.println("Name already taken, please choose another one");
@@ -54,5 +69,24 @@ public class Server extends UnicastRemoteObject implements Chat_itf{
         if(this.registeredClients.contains(client)) {
             this.registeredClients.remove(client);
         }
+    }
+
+    public void addChatRoom(ChatRoom_itf chatRoom) throws RemoteException{
+        this.chatRooms.add(chatRoom);
+    }
+
+    public void getAllChatRooms(Client_itf client) throws RemoteException{
+        for(ChatRoom_itf chatRoom : this.chatRooms) {
+            client.sendMsg(null,chatRoom.getTitle());
+        }
+    }
+
+    public ChatRoom_itf getChatRoom(String chatRoomTitle) throws RemoteException{
+        for(ChatRoom_itf room: chatRooms){
+            if(room.getTitle().toUpperCase().equals(chatRoomTitle.toUpperCase())){
+                return room;
+            }
+        }
+        return null;
     }
 }

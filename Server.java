@@ -14,7 +14,7 @@ public class Server extends UnicastRemoteObject implements Chat_itf{
 
     public Client_itf getClient(String name) throws RemoteException {
         for(Client_itf client: registeredClients){
-            if(client.getName().equals(name)){
+            if(client.getName().toUpperCase().equals(name.toUpperCase())){
                 return client;
             }
         }
@@ -35,21 +35,24 @@ public class Server extends UnicastRemoteObject implements Chat_itf{
         }
     }
 
-
-    public void register(Client_itf client) throws RemoteException{
+    public boolean register(Client_itf client) throws RemoteException{
+        boolean isRegistered = false;
         if(!this.registeredClients.contains(client)) {
             this.registeredClients.add(client);
             System.out.println("Successfully registered client: " + client.getName());
 
             sendMsg(client,null,"Successfully registered!");
+            isRegistered = true;
+        }else{
+            System.out.println("Name already taken, please choose another one");
         }
+        return isRegistered;
     }
 
     public void unRegister(Client_itf client) throws RemoteException{
         System.out.println("registeredClients: "+registeredClients);
         if(this.registeredClients.contains(client)) {
             this.registeredClients.remove(client);
-
         }
     }
 }

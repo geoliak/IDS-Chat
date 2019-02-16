@@ -30,10 +30,6 @@ public class RunClient {
 
             boolean notExit = true;
 
-            if(scanner.nextLine().startsWith("0")){
-                notExit = false;
-            }
-
             Client c = null;
 
             if(clientName != null) {

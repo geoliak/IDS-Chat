@@ -9,9 +9,18 @@ public class RunServer{
 
             Registry registry = LocateRegistry.getRegistry();
 
-            registry.bind("ChatServer", new Server());
+            Server s = new Server();
+
+            registry.bind("ChatServer", s);
 
             System.out.println("Server is ready:");
+
+            ChatRoom distributed_systems = new ChatRoom("Distributed Systems");
+            ChatRoom java = new ChatRoom("Java");
+
+            s.addChatRoom(distributed_systems);
+            s.addChatRoom(java);
+
 
            /*while(true){
                 String msg=s.nextLine().trim();

@@ -1,3 +1,4 @@
+import java.io.*;
 import java.rmi.*;
 import java.rmi.server.*;
 import java.util.*;
@@ -15,14 +16,14 @@ public class ChatRoom extends UnicastRemoteObject implements ChatRoom_itf{
         this.messageList = new ArrayList<>();
     }
 
-    public Client_itf getUser(Client_itf client) throws RemoteException{
+    public Client_itf getUser(Client_itf client){
         if(this.clientList.contains(client))
             return client;
         else
             return null;
     }
 
-    public String getTitle() throws RemoteException{
+    public String getTitle(){
         return this.title;
     }
 
@@ -34,19 +35,38 @@ public class ChatRoom extends UnicastRemoteObject implements ChatRoom_itf{
     }
 
     public void addMessage(String sender,String msg) throws  RemoteException{
-        this.messageList.add("[" + sender + "] wrote: " + msg);
+        //this.messageList.add("[" + sender + "] wrote: " + msg);
         broadcastMsg(sender,msg);
     }
 
-    public void broadcastMsg(String sender, String msg) throws RemoteException{
-        if(clientList.size() > 0) {
-            for (Client_itf c: clientList) {
-                c.sendMsg(sender, msg);
+    public void broadcastMsg(String sender, String message) throws RemoteException {
+        if (clientList.size() > 0) {
+            for (Client_itf c : clientList) {
+                c.sendMsg(sender, message);
             }
-            if (sender != null) {
-                this.messageList.add("[" + sender + "] wrote: " + msg);
-            } else {
-                this.messageList.add(msg);
+
+            try {//write to file
+                File chatFile = new File(this.title);
+
+                if (!chatFile.exists()) {
+                    chatFile.createNewFile();
+                }
+
+                OutputStream outputStream = new FileOutputStream(chatFile, true);
+                String msg;
+
+                if (sender != null) {
+                    msg = "[" + sender + "] wrote to all: " + message + "\n";
+                    outputStream.write(msg.getBytes(), 0, msg.length());
+                    //this.messageList.add("[" + clientName + "] wrote: " + message);
+
+                } else {
+                    //this.messageList.add(message);
+                    msg = message + "\n";
+                    outputStream.write(msg.getBytes(), 0, msg.length());
+                }
+            } catch (java.io.IOException e) {
+                System.out.println(e.getMessage());
             }
         }
     }
@@ -58,13 +78,24 @@ public class ChatRoom extends UnicastRemoteObject implements ChatRoom_itf{
         client.sendMsg(null,"You are no longer a member of "+ this.getTitle());
     }
 
-    public ArrayList<String> getAllMessages(){
-        return this.messageList;
-    }
+    public void getHistory(Client_itf client,ChatRoom_itf chatRoom){
+        String msg;
+        try{
+            File history = new File(chatRoom.getTitle());
+            BufferedReader buf = new BufferedReader(new FileReader(history));
 
-    public void printAllMessages(Client_itf client) throws  RemoteException{
-        for(String msg: getAllMessages()){
-            client.sendMsg(null,msg);
+            while((msg = buf.readLine()) != null){
+                client.sendMsg(null,msg);
+            }
+            if(history.length() == 0)
+                client.sendMsg(null,"Sorry there is no history to display");
+
+        }
+        catch(FileNotFoundException ex){
+            System.out.println(ex.getMessage());
+        }
+        catch(java.io.IOException ex){
+            ex.printStackTrace();
         }
     }
 }

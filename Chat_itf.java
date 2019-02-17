@@ -10,4 +10,5 @@ public interface Chat_itf extends Remote{
     void getAllChatRooms(Client_itf client) throws RemoteException;
     ChatRoom_itf getChatRoom(String chatRoomTitle) throws RemoteException;
     void getHistory(Client_itf client) throws RemoteException;
+    void setChatRoom(ChatRoom_itf chatRoom, Client_itf client) throws RemoteException;
 }

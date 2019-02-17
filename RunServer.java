@@ -9,27 +9,22 @@ public class RunServer{
 
             Registry registry = LocateRegistry.getRegistry();
 
-            Server s = new Server();
+            Server remoteServer = new Server();
 
-            registry.bind("ChatServer", s);
+            registry.bind("ChatServer", remoteServer);
 
             System.out.println("Server is ready:");
 
             ChatRoom distributed_systems = new ChatRoom("Distributed Systems");
             ChatRoom java = new ChatRoom("Java");
+            ChatRoom science = new ChatRoom("Science");
+            ChatRoom nerds = new ChatRoom("Nerds");
 
-            s.addChatRoom(distributed_systems);
-            s.addChatRoom(java);
+            remoteServer.addChatRoom(distributed_systems);
+            remoteServer.addChatRoom(java);
+            remoteServer.addChatRoom(science);
+            remoteServer.addChatRoom(nerds);
 
-
-           /*while(true){
-                String msg=s.nextLine().trim();
-                if (server.getClient()!=null){
-                    ChatInterface client=server.getClient();
-                    msg=server.getName() +msg;
-                    client.send(msg);
-                }
-            }*/
 
         } catch (Exception e) {
             System.out.println("Server failed: " + e.getStackTrace()[0].getLineNumber());
